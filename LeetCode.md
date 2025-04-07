@@ -454,6 +454,58 @@ int longestConsecutive(vector<int>& nums) {
 
 
 
+### 283 移动零
+
+给定一个数组 `nums`，编写一个函数将所有 `0` 移动到数组的末尾，同时保持非零元素的相对顺序。
+
+**请注意** ，必须在不复制数组的情况下原地对数组进行操作。
+
+第一个版本 比较简单：
+
+```c++
+class Solution {
+public:
+    void moveZeroes(vector<int>& nums) {
+        int nums2 = 0;
+        for(auto it = nums.begin();it!= nums.end();)
+        {
+            if(*it == 0)
+            {
+                nums.erase(it);
+                ++nums2;
+            }
+            else
+            {
+                ++it;
+            }
+        }
+        std::cout<<nums2<<std::endl;
+        for(auto i = 0;i<nums2;++i)
+        {
+            nums.push_back(0);
+        }
+    }
+};
+```
+
+
+
+```c++
+void Solution::moveZeroes(vector<int>& nums)
+{
+    auto it = std::remove(nums.begin(), nums.end(), 0); //返回的是之前未定义的值
+    for (auto it2 = it; it2 != nums.end();++it2)
+    {
+        *it2 = 0;
+    }
+    for (int num : nums) {
+        std::cout << num << " ";
+    }
+}
+```
+
+
+
 
 
 

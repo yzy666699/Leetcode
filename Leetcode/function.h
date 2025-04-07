@@ -6,4 +6,5 @@
 
 void twoSum();
 void groupAnagrams();
+void moveZero();
 

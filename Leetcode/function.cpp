@@ -28,3 +28,10 @@ void groupAnagrams()
         cout << endl;
     }
 }
+
+void moveZero()
+{
+    Solution solution;
+    vector<int> nums = { 0, 1, 0, 3, 12 };
+    solution.moveZeroes(nums);
+}

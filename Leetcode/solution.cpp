@@ -40,3 +40,15 @@ vector<vector<string>> Solution::groupAnagrams(vector<string>& strs)
 
     return result;
 }
+
+void Solution::moveZeroes(vector<int>& nums)
+{
+    auto it = std::remove(nums.begin(), nums.end(), 0); //返回的是之前未定义的值
+    for (auto it2 = it; it2 != nums.end();++it2)
+    {
+        *it2 = 0;
+    }
+    for (int num : nums) {
+        std::cout << num << " ";
+    }
+}

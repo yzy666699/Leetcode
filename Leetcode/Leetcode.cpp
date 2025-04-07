@@ -9,8 +9,8 @@ using namespace std;
 
 int main() {
     
-    twoSum();
-    groupAnagrams();
-
+    //twoSum();
+    //groupAnagrams();
+    moveZero();
     return 0;
 }
