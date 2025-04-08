@@ -35,3 +35,11 @@ void moveZero()
     vector<int> nums = { 0, 1, 0, 3, 12 };
     solution.moveZeroes(nums);
 }
+
+void maxArea()
+{
+    Solution solution;
+    vector<int> nums = { 1,8,6,2,5,4,8,3,7 };
+    solution.maxArea(nums);
+
+}

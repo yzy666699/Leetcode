@@ -52,3 +52,29 @@ void Solution::moveZeroes(vector<int>& nums)
         std::cout << num << " ";
     }
 }
+
+int Solution::maxArea(vector<int>& height)
+{
+    int temp = 0;
+    for (int i = 0;i < height.size();++i)
+    {
+        for (int m = i + 1;m < height.size();++m)
+        {
+            int num = 0;
+            if (height[i] < height[m])
+            {
+                num = height[i] * (m - i);
+            }
+            else
+            {
+                num = height[m] * (m - i);
+            }
+
+            if (num > temp)
+            {
+                temp = num;
+            }
+        }
+    }
+    return temp;
+}

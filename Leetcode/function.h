@@ -7,4 +7,5 @@
 void twoSum();
 void groupAnagrams();
 void moveZero();
+void maxArea();
 

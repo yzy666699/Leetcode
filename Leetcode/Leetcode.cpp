@@ -11,6 +11,8 @@ int main() {
     
     //twoSum();
     //groupAnagrams();
-    moveZero();
+    //moveZero();
+    maxArea();
+
     return 0;
 }

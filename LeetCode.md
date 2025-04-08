@@ -355,7 +355,7 @@ public:
 };
 ```
 
-### 最长连续序列
+### 128 最长连续序列
 
 给定一个未排序的整数数组 `nums` ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。
 
@@ -502,6 +502,94 @@ void Solution::moveZeroes(vector<int>& nums)
         std::cout << num << " ";
     }
 }
+```
+
+
+
+### 11 盛最多水的容器
+
+给定一个长度为 `n` 的整数数组 `height` 。有 `n` 条垂线，第 `i` 条线的两个端点是 `(i, 0)` 和 `(i, height[i])` 。
+
+找出其中的两条线，使得它们与 `x` 轴共同构成的容器可以容纳最多的水。
+
+返回容器可以储存的最大水量。
+
+**说明：**你不能倾斜容器。
+
+**×超出时间限制了**
+
+```C++
+class Solution {
+public:
+    int maxArea(vector<int>& height) {
+        int temp = 0;
+        for(int i = 0;i<height.size();++i)
+        {
+            for(int m = i + 1;m<height.size();++m)
+            {
+                int num = 0;
+                if(height[i] < height[m])
+                {
+                    num = height[i] *(m - i);
+                }else
+                {
+                    num = height[m] *(m - i);
+                }
+                    
+                if(num > temp)
+                {
+                    temp = num;
+                }    
+            }
+        }
+        return temp;
+    }
+};
+```
+
+
+
+题解：
+
+**双指针法的正确性**
+
+- 初始化两个指针 `left` 和 `right`，分别指向数组的开头和结尾。
+- 计算当前容器的容量：`(right - left) * min(height[left], height[right])`。
+- 移动较短的那条线段的指针（因为移动较长的线段不会增加容量，而移动较短的线段可能会遇到更高的线段，从而可能增加容量）。
+- 重复上述步骤，直到 `left` 和 `right` 相遇。
+- 在整个过程中记录最大的容量。
+
+为什么双指针法是正确的？关键在于我们每次移动较短的那条线段的指针。因为容器的容量由较短的线段和宽度决定，移动较长的线段的指针不会增加容量（因为高度不会超过当前的较短线段，而宽度在减少）。而移动较短的线段的指针，可能会遇到更高的线段，从而可能增加容量。
+
+```C++
+class Solution {
+public:
+    int maxArea(vector<int>& height) {
+        int left = 0;
+        int right =height.size() - 1;
+        int temp = 0;
+        int num = 0;
+        while(left < right)
+        {
+            int x = height[left];
+            int y = height[right];
+            if(x < y)
+            {
+                num = x * (right - left);
+                left++;
+            }else
+            {
+                num = y * (right - left);
+                right--;
+            }
+            if(num>temp)
+            {
+                temp = num;
+            }
+        }
+        return temp;
+    }
+};
 ```
 
 
