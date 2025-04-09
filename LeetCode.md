@@ -596,13 +596,105 @@ public:
 
 
 
+### 15 三数之和
+
+给你一个整数数组 `nums` ，判断是否存在三元组 `[nums[i], nums[j], nums[k]]` 满足 `i != j`、`i != k` 且 `j != k` ，同时还满足 `nums[i] + nums[j] + nums[k] == 0` 。请你返回所有和为 `0` 且不重复的三元组。
 
 
 
+备注：
+
+`for(int x :M(vector))` x是备份 并不是直接操作M
+
+erase（nums.begin()+i)会删除元素之后自动调整数组大小
+
+我的代码超出时间限制了 呜呜呜
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        vector<vector<int>> ret;
+        vector<int> san;
+        for(auto i = 0;i<nums.size();++i)
+        {
+            for(auto j = i+1;j<nums.size();++j)
+            {
+                for(auto k = j+1;k<nums.size();++k)
+                {
+                    if(nums[i]+nums[j]+nums[k] == 0)
+                    {
+                        if(san.size()>=3)
+                        {
+                            san.clear();
+                        }
+                        san.push_back(nums[i]);
+                        san.push_back(nums[j]);
+                        san.push_back(nums[k]);
+                        ret.push_back(san);
+                    }
+                }
+            }
+        }
+        for(auto i =0;i<ret.size();++i)
+        {
+            sort(ret[i].begin(), ret[i].end());
+        }
+        for(auto i = 0;i + 1<ret.size();)
+        {
+            bool duplicate = false;
+            for(int j = i+1; j < ret.size(); ++j) {
+                if(ret[i] == ret[j]) {
+                    duplicate = true;
+                    break;
+                }
+            }
+            
+            if(duplicate) {
+                ret.erase(ret.begin() + i);
+            } else {
+                ++i;
+            }
+        }
+        return ret;
+    }
+};
+```
 
 
 
+官方求解 **最佳实践是使用排序+双指针法，从一开始就避免生成重复的三元组：**
 
+```c++
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        vector<vector<int>> res;
+        sort(nums.begin(), nums.end());
+        
+        for (int i = 0; i < nums.size() && nums[i] <= 0; ++i) {
+            if (i > 0 && nums[i] == nums[i-1]) continue;
+            
+            int left = i+1, right = nums.size()-1;
+            while (left < right) {
+                int sum = nums[i] + nums[left] + nums[right];
+                if (sum < 0) {
+                    ++left;
+                } else if (sum > 0) {
+                    --right;
+                } else {
+                    res.push_back({nums[i], nums[left], nums[right]});
+                    while (left < right && nums[left] == nums[left+1]) ++left;
+                    while (left < right && nums[right] == nums[right-1]) --right;
+                    ++left;
+                    --right;
+                }
+            }
+        }
+        return res;
+    }
+};
+```
 
 
 
