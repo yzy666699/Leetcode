@@ -675,7 +675,7 @@ public:
         for (int i = 0; i < nums.size() && nums[i] <= 0; ++i) {
             if (i > 0 && nums[i] == nums[i-1]) continue;
             
-            int left = i+1, right = nums.size()-1;
+            int left = i+1, right = nu.size()-1;
             while (left < right) {
                 int sum = nums[i] + nums[left] + nums[right];
                 if (sum < 0) {
@@ -698,21 +698,283 @@ public:
 
 
 
+### 42 接雨水 （困难）
+
+ 双指针法
+
+```c++
+#include <vector>
+#include <algorithm>
+#include <iostream>
+using namespace std;
+
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        int left = 0, right = height.size() - 1;
+        int left_max = 0, right_max = 0;
+        int total_water = 0;
+
+        while (left < right) {
+            if (height[left] < height[right]) {
+                if (height[left] >= left_max) {
+                    left_max = height[left];
+                } else {
+                    total_water += left_max - height[left];
+                }
+                ++left;
+            } else {
+                if (height[right] >= right_max) {
+                    right_max = height[right];
+                } else {
+                    total_water += right_max - height[right];
+                }
+                --right;
+            }
+        }
+
+        return total_water;
+    }
+};
+
+
+int main() {
+    Solution sol;
+    vector<int> height = {0,1,0,2,1,0,1,3,2,1,2,1};
+    int result = sol.trap(height);
+    cout << "可以接的雨水总量为: " << result << endl;
+    return 0;
+}
+
+```
+
+
+
+前缀最大值 & 后缀最大值
+
+```c++
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        int n = height.size();
+        if (n == 0) return 0;
+
+        vector<int> max_left(n), max_right(n);
+        int total_water = 0;
+
+        // 计算前缀最大值
+        max_left[0] = height[0];
+        for (int i = 1; i < n; ++i) {
+            max_left[i] = max(max_left[i - 1], height[i]);
+        }
+
+        // 计算后缀最大值
+        max_right[n - 1] = height[n - 1];
+        for (int i = n - 2; i >= 0; --i) {
+            max_right[i] = max(max_right[i + 1], height[i]);
+        }
+
+        // 计算总的接水量
+        for (int i = 0; i < n; ++i) {
+            int water_height = min(max_left[i], max_right[i]);
+            if (water_height > height[i]) {
+                total_water += water_height - height[i];
+            }
+        }
+
+        return total_water;
+    }
+};
+
+```
 
 
 
 
 
+### 3 无重复字符的最长子串
+
+给定一个字符串 `s` ，请你找出其中不含有重复字符的 **最长 子串** 的长度。
+
+ 
+
+**示例 1:**
+
+```
+输入: s = "abcabcbb"
+输出: 3 
+解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
+```
+
+**示例 2:**
+
+```
+输入: s = "bbbbb"
+输出: 1
+解释: 因为无重复字符的最长子串是 "b"，所以其长度为 1。
+```
+
+**示例 3:**
+
+```
+输入: s = "pwwkew"
+输出: 3
+解释: 因为无重复字符的最长子串是 "wke"，所以其长度为 3。
+     请注意，你的答案必须是 子串 的长度，"pwke" 是一个子序列，不是子串。
+```
 
 
 
+```c++
+class Solution {
+    //滑动窗口
+public:
+    int lengthOfLongestSubstring(string s) {
+        unordered_map<char,int> hash;
+        auto i = 0;
+        auto start = 0,maxLen = 0;
+        for(i=0;i<s.size();++i)
+        {
+            char str = s[i];
+            if(hash.count(str)&&hash[str]>=start)//这个字符上一次出现的位置是不是还在当前窗口范围内
+            {
+                start = hash[str]+1;
+            }
+            hash[str] = i;
+            maxLen = max(maxLen,i-start+1);
+        }
+        
+        return maxLen;
+    }
+};
+```
 
 
 
+### 146. LRU 缓存
+
+请你设计并实现一个满足 [LRU (最近最少使用) 缓存](https://baike.baidu.com/item/LRU) 约束的数据结构。
+
+实现 `LRUCache` 类：
+
+- `LRUCache(int capacity)` 以 **正整数** 作为容量 `capacity` 初始化 LRU 缓存
+- `int get(int key)` 如果关键字 `key` 存在于缓存中，则返回关键字的值，否则返回 `-1` 。
+- `void put(int key, int value)` 如果关键字 `key` 已经存在，则变更其数据值 `value` ；如果不存在，则向缓存中插入该组 `key-value` 。如果插入操作导致关键字数量超过 `capacity` ，则应该 **逐出** 最久未使用的关键字。
+
+函数 `get` 和 `put` 必须以 `O(1)` 的平均时间复杂度运行。
+
+ 
+
+**示例：**
+
+```
+输入
+["LRUCache", "put", "put", "get", "put", "get", "put", "get", "get", "get"]
+[[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]]
+输出
+[null, null, null, 1, null, -1, null, -1, 3, 4]
+
+解释
+LRUCache lRUCache = new LRUCache(2);
+lRUCache.put(1, 1); // 缓存是 {1=1}
+lRUCache.put(2, 2); // 缓存是 {1=1, 2=2}
+lRUCache.get(1);    // 返回 1
+lRUCache.put(3, 3); // 该操作会使得关键字 2 作废，缓存是 {1=1, 3=3}
+lRUCache.get(2);    // 返回 -1 (未找到)
+lRUCache.put(4, 4); // 该操作会使得关键字 1 作废，缓存是 {4=4, 3=3}
+lRUCache.get(1);    // 返回 -1 (未找到)
+lRUCache.get(3);    // 返回 3
+lRUCache.get(4);    // 返回 4
+```
 
 
 
+```c++
+class LRUCache {
+private:
+    int capacity;
+    list<pair<int, int>> cache; // 双向链表：{key, value}
+    unordered_map<int, list<pair<int, int>>::iterator> map; // key -> 节点迭代器
 
+public:
+    LRUCache(int capacity) : capacity(capacity) {}
+
+    int get(int key) {
+        if (map.find(key) == map.end())
+            return -1;
+        //if(!map.count(key)) return -1;
+        // 将该 key 移动到链表头部（最近使用）
+        auto it = map[key];
+        cache.splice(cache.begin(), cache, it); // O(1)
+        return it->second;
+    }
+
+    void put(int key, int value) {
+        if (map.find(key) != map.end()) {
+            // key 已存在，更新值并移到头部
+            auto it = map[key];
+            it->second = value;
+            cache.splice(cache.begin(), cache, it);
+        } else {
+            // key 不存在，检查是否超出容量
+            if (cache.size() == capacity) {
+                // 删除链表尾部元素（最久未使用）
+                int oldKey = cache.back().first;
+                map.erase(oldKey);
+                cache.pop_back();
+            }
+            // 插入新元素到头部
+            cache.emplace_front(key, value);
+            map[key] = cache.begin();
+        }
+    }
+};
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache* obj = new LRUCache(capacity);
+ * int param_1 = obj->get(key);
+ * obj->put(key,value);
+ */
+```
+
+
+
+### 206 反转链表
+
+给你单链表的头节点 `head` ，请你反转链表，并返回反转后的链表。
+
+ ```
+ /**
+  * Definition for singly-linked list.
+  * struct ListNode {
+  *     int val;
+  *     ListNode *next;
+  *     ListNode() : val(0), next(nullptr) {}
+  *     ListNode(int x) : val(x), next(nullptr) {}
+  *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+  * };
+  */
+ class Solution {
+ public:
+     ListNode* reverseList(ListNode* head) {
+         ListNode* prev = nullptr;
+         ListNode* curr = head;
+         while(curr!=nullptr)
+         {
+             ListNode* Next = curr->next;
+             curr->next = prev;
+             prev = curr;
+             curr = Next;
+         }
+         return prev;
+     }
+ };
+ ```
 
 
 
