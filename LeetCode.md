@@ -871,7 +871,7 @@ public:
 
 **示例：**
 
-```
+```c++
 输入
 ["LRUCache", "put", "put", "get", "put", "get", "put", "get", "get", "get"]
 [[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]]
@@ -948,7 +948,7 @@ public:
 
 给你单链表的头节点 `head` ，请你反转链表，并返回反转后的链表。
 
- ```
+ ```c++
  /**
   * Definition for singly-linked list.
   * struct ListNode {
@@ -978,11 +978,500 @@ public:
 
 
 
+### 25 K 个一组翻转链表
+
+```c++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    // 反转从start到end（不含end）的链表
+    ListNode* reverse(ListNode* start, ListNode* end) {
+        ListNode* prev = nullptr;
+        ListNode* curr = start;
+        while (curr != end) {
+            ListNode* next = curr->next;
+            curr->next = prev;
+            prev = curr;
+            curr = next;
+        }
+        return prev;
+    }
+
+    ListNode* reverseKGroup(ListNode* head, int k) {
+        if (head == nullptr || k <= 1) return head;
+        
+        ListNode dummy(0);
+        dummy.next = head;
+        ListNode* groupPrev = &dummy;
+
+        while (true) {
+            ListNode* kth = groupPrev;
+            // 查找第k个节点
+            for (int i = 0; i < k && kth != nullptr; ++i) {
+                kth = kth->next;
+            }
+            if (kth == nullptr) break;
+
+            ListNode* groupNext = kth->next;
+            ListNode* prev = groupPrev->next;
+            ListNode* curr = prev->next;
+
+            // 反转这一组
+            while (curr != groupNext) {
+                prev->next = curr->next;
+                curr->next = groupPrev->next;
+                groupPrev->next = curr;
+                curr = prev->next;
+            }
+
+            groupPrev = prev;
+        }
+
+        return dummy.next;
+    }
+};
+
+```
+
+
+
+### 121 买卖股票的最佳时机
+
+给定一个数组 `prices` ，它的第 `i` 个元素 `prices[i]` 表示一支给定股票第 `i` 天的价格。
+
+你只能选择 **某一天** 买入这只股票，并选择在 **未来的某一个不同的日子** 卖出该股票。设计一个算法来计算你所能获取的最大利润。
+
+返回你可以从这笔交易中获取的最大利润。如果你不能获取任何利润，返回 `0` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：[7,1,5,3,6,4]
+输出：5
+解释：在第 2 天（股票价格 = 1）的时候买入，在第 5 天（股票价格 = 6）的时候卖出，最大利润 = 6-1 = 5 。
+     注意利润不能是 7-1 = 6, 因为卖出价格需要大于买入价格；同时，你不能在买入前卖出股票。
+```
+
+**示例 2：**
+
+```
+输入：prices = [7,6,4,3,1]
+输出：0
+解释：在这种情况下, 没有交易完成, 所以最大利润为 0。
+```
+
+暴力法
+
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        if(prices.size() == 0) return 0;
+        int max = 0;
+        for(auto i = 0;i<prices.size();++i)
+        {
+            int curr = prices[i];
+            int temp = 0;
+            for(auto m = i;m<prices.size();++m)
+            {
+                
+                if(curr < prices[m])
+                {
+                    int max_temp = prices[m]-curr;
+                    if(max_temp>temp)
+                    {
+                        temp  = max_temp;
+                    }
+                }
+            }
+            if(temp>max)
+            {
+                max = temp;
+            }
+        }
+        return max;
+    }
+};
+```
+
+
+
+线性时间
+
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        if (prices.empty()) return 0;
+        int minPrice = prices[0];
+        int maxProfit = 0;
+        for (int i = 1; i < prices.size(); ++i) 
+        {
+            if (prices[i] < minPrice)
+                minPrice = prices[i];
+            else
+                maxProfit = max(maxProfit, prices[i] - minPrice);
+        }
+        return maxProfit;
+    }
+};
+```
+
+
+
+### 200 岛屿数量
+
+给你一个由 `'1'`（陆地）和 `'0'`（水）组成的的二维网格，请你计算网格中岛屿的数量。
+
+岛屿总是被水包围，并且每座岛屿只能由水平方向和/或竖直方向上相邻的陆地连接形成。
+
+此外，你可以假设该网格的四条边均被水包围。
+
+ 
+
+**示例 1：**
+
+```
+输入：grid = [
+  ["1","1","1","1","0"],
+  ["1","1","0","1","0"],
+  ["1","1","0","0","0"],
+  ["0","0","0","0","0"]
+]
+输出：1
+```
+
+**示例 2：**
+
+```
+输入：grid = [
+  ["1","1","0","0","0"],
+  ["1","1","0","0","0"],
+  ["0","0","1","0","0"],
+  ["0","0","0","1","1"]
+]
+输出：3
+```
+
+
+
+一个经典的图遍历问题，题目叫做「岛屿数量」（LeetCode 第 200 题：Number of Islands），我们可以使用 **DFS**（深度优先搜索）或 **BFS**（广度优先搜索）来解决。
+
+```c++
+class Solution {
+public:
+    void dfs(vector<vector<char>>& grid, int i, int j) {
+        int m = grid.size(), n = grid[0].size();
+        // 越界或遇到水就返回
+        if (i < 0 || i >= m || j < 0 || j >= n || grid[i][j] == '0') return;
+
+        // 标记当前陆地为访问过
+        grid[i][j] = '0';
+
+        // 递归访问四个方向
+        dfs(grid, i + 1, j);
+        dfs(grid, i - 1, j);
+        dfs(grid, i, j + 1);
+        dfs(grid, i, j - 1);
+    }
+
+    int numIslands(vector<vector<char>>& grid) {
+        if (grid.empty()) return 0;
+        int count = 0;
+        int m = grid.size(), n = grid[0].size();
+
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (grid[i][j] == '1') {
+                    dfs(grid, i, j); // 从当前陆地出发沉岛
+                    ++count;         // 岛屿数 +1
+                }
+            }
+        }
+        return count;
+    }
+};
+
+```
+
+
+
+### 215. 数组中的第K个最大元素
+
+给定整数数组 `nums` 和整数 `k`，请返回数组中第 `**k**` 个最大的元素。
+
+请注意，你需要找的是数组排序后的第 `k` 个最大的元素，而不是第 `k` 个不同的元素。
+
+你必须设计并实现时间复杂度为 `O(n)` 的算法解决此问题。
+
+
+
+```c++
+class Solution {
+public:
+    int quickSelect(vector<int>& nums, int left, int right, int k_smallest) {
+        if (left == right) return nums[left];
+
+        int pivot_index = left + rand() % (right - left + 1);
+        pivot_index = partition(nums, left, right, pivot_index);
+
+        if (k_smallest == pivot_index)
+            return nums[k_smallest];
+        else if (k_smallest < pivot_index)
+            return quickSelect(nums, left, pivot_index - 1, k_smallest);
+        else
+            return quickSelect(nums, pivot_index + 1, right, k_smallest);
+    }
+
+    int partition(vector<int>& nums, int left, int right, int pivot_index) {
+        int pivot = nums[pivot_index];
+        swap(nums[pivot_index], nums[right]); // 将 pivot 放到最后
+        int store_index = left;
+
+        for (int i = left; i < right; i++) {
+            if (nums[i] < pivot) {
+                swap(nums[store_index], nums[i]);
+                store_index++;
+            }
+        }
+        swap(nums[right], nums[store_index]); // 把 pivot 放到正确位置
+        return store_index;
+    }
+
+    int findKthLargest(vector<int>& nums, int k) {
+        int n = nums.size();
+        // 第 k 大 = 第 (n - k) 小
+        return quickSelect(nums, 0, n - 1, n - k);
+    }
+};
+```
+
+
+
+### 300. 最长递增子序列
+
+
+
+给你一个整数数组 `nums` ，找到其中最长严格递增子序列的长度。
+
+**子序列** 是由数组派生而来的序列，删除（或不删除）数组中的元素而不改变其余元素的顺序。例如，`[3,6,2,7]` 是数组 `[0,3,1,6,2,2,7]` 的子序列。
+
+ 
+
+```c++
+//动态规划
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        int n = nums.size();
+        if (n == 0) return 0;
+        vector<int> dp(n, 1); // 每个位置都初始化为1
+        int maxLen = 1;
+
+        for (int i = 1; i < n; ++i) {
+            for (int j = 0; j < i; ++j) {
+                if (nums[i] > nums[j]) {
+                    dp[i] = max(dp[i], dp[j] + 1);
+                }
+            }
+            maxLen = max(maxLen, dp[i]);
+        }
+
+        return maxLen;
+    }
+};
+
+
+//贪心算法 二分查找
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        vector<int> tails;
+        for (int num : nums) {
+            auto it = lower_bound(tails.begin(), tails.end(), num);
+            if (it == tails.end()) {
+                tails.push_back(num);
+            } else {
+                *it = num;
+            }
+        }
+        return tails.size();
+    }
+};
+
+```
+
+
+
+### 46. 全排列
+
+给定一个不含重复数字的数组 `nums` ，返回其 *所有可能的全排列* 。你可以 **按任意顺序** 返回答案。
+
+```c++
+// 回溯
+class Solution {
+public:
+    vector<vector<int>> permute(vector<int>& nums) {
+        vector<vector<int>> res;
+        vector<int> path;
+        vector<bool> used(nums.size(), false);
+        backtrack(nums, used, path, res);
+        return res;
+    }
+
+    void backtrack(const vector<int>& nums, vector<bool>& used, 
+                   vector<int>& path, vector<vector<int>>& res) {
+        if (path.size() == nums.size()) {
+            res.push_back(path);
+            return;
+        }
+
+        for (int i = 0; i < nums.size(); ++i) {
+            if (used[i]) continue;
+            used[i] = true;
+            path.push_back(nums[i]);
+            backtrack(nums, used, path, res);
+            path.pop_back();      // 回溯
+            used[i] = false;
+        }
+    }
+};
+
+```
+
+
+
+### 165. 比较版本号
+
+给你两个 **版本号字符串** `version1` 和 `version2` ，请你比较它们。版本号由被点 `'.'` 分开的修订号组成。**修订号的值** 是它 **转换为整数** 并忽略前导零。
+
+比较版本号时，请按 **从左到右的顺序** 依次比较它们的修订号。如果其中一个版本字符串的修订号较少，则将缺失的修订号视为 `0`。
+
+返回规则如下：
+
+- 如果 `*version1* < *version2*` 返回 `-1`，
+- 如果 `*version1* > *version2*` 返回 `1`，
+- 除此之外返回 `0`。
+
+ 
+
+**示例 1：**
+
+**输入：**version1 = "1.2", version2 = "1.10"
+
+**输出：**-1
+
+**解释：**
+
+version1 的第二个修订号为 "2"，version2 的第二个修订号为 "10"：2 < 10，所以 version1 < version2。
+
+**示例 2：**
+
+**输入：**version1 = "1.01", version2 = "1.001"
+
+**输出：**0
+
+**解释：**
+
+忽略前导零，"01" 和 "001" 都代表相同的整数 "1"。
+
+**示例 3：**
+
+**输入：**version1 = "1.0", version2 = "1.0.0.0"
+
+**输出：**0
+
+**解释：**
+
+version1 有更少的修订号，每个缺失的修订号按 "0" 处理。
+
+```c++
+class Solution {
+public:
+    int compareVersion(string version1, string version2) {
+        vector<int> v1 = split(version1);
+        vector<int> v2 = split(version2);
+        int n = max(v1.size(), v2.size());
+        for (int i = 0; i < n; ++i) {
+            int num1 = i < v1.size() ? v1[i] : 0;
+            int num2 = i < v2.size() ? v2[i] : 0;
+            if (num1 < num2) return -1;
+            if (num1 > num2) return 1;
+        }
+        return 0;
+    }
+
+private:
+    vector<int> split(string& version) {
+        vector<int> res;
+        int i = 0, n = version.size();
+        while (i < n) {
+            int num = 0;
+            while (i < n && version[i] != '.') {
+                num = num * 10 + (version[i] - '0');
+                i++;
+            }
+            res.push_back(num);
+            i++; // skip '.'
+        }
+        return res;
+    }
+};
+
+```
 
 
 
 
 
+### 160. 相交链表
+
+给你两个单链表的头节点 `headA` 和 `headB` ，请你找出并返回两个单链表相交的起始节点。如果两个链表不存在相交节点，返回 `null` 。
+
+图示两个链表在节点 `c1` 开始相交**：**
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        //双指针法（推荐做法）
+          if (!headA || !headB) return nullptr;
+
+        ListNode* pA = headA;
+        ListNode* pB = headB;
+
+        while (pA != pB) {
+            pA = pA ? pA->next : headB;
+            pB = pB ? pB->next : headA;
+        }
+
+        return pA;  // 如果相交，返回相交节点；否则为 nullptr
+    }
+};
+```
+
+
+
+## temp
 
 
 
